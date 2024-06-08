@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <h1 class="text-2xl font-semibold text-center mb-4">Upload a File</h1>
+        <div id="uploadResult" class="hidden bg-green-200 text-green-800 rounded-md p-3 mb-4"></div>
+        <div id="uploadError" class="hidden bg-red-200 text-red-800 rounded-md p-3 mb-4"></div>
+        <input type="file" name="file" id="file" class="block w-full bg-white border border-gray-300 rounded-md px-4 py-2 mb-4 focus:outline-none focus:border-blue-500">
+        <label for="expiration" class="block mb-4">Expiration:</label>
+        <select id="expiration" name="expiration" class="block w-full bg-white border border-gray-300 rounded-md px-4 py-2 mb-4 focus:outline-none focus:border-blue-500">
+            <option value="1" selected>1 day</option>
+            <option value="2">2 days</option>
+            <option value="3">3 days</option>
+            <option value="4">4 days</option>
+        </select>
+        <button type="button" onclick="uploadFile()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Upload</button>
+    </div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('file');
+            const expirationSelect = document.getElementById('expiration');
+            const file = fileInput.files[0];
+            const expiration = expirationSelect.value;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('expiration', expiration);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                document.getElementById('uploadResult').innerText = `File uploaded successfully. URL: ${data.file_url}. Expires on: ${data.expiration_date}`;
+                document.getElementById('uploadResult').classList.remove('hidden');
+                document.getElementById('uploadError').classList.add('hidden');
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                document.getElementById('uploadError').innerText = 'Error uploading file. Please try again.';
+                document.getElementById('uploadError').classList.remove('hidden');
+                document.getElementById('uploadResult').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>
