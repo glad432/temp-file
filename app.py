@@ -11,7 +11,7 @@ CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['DEFAULT_EXPIRATION_MINUTES'] = 1
+app.config['DEFAULT_EXPIRATION_HOURS'] = 1
 
 file_lock = threading.Lock()
 file_expirations = {}
@@ -25,8 +25,8 @@ def create_upload_directory():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
-def get_expiration_date(expiration_minutes):
-    return datetime.now() + timedelta(minutes=expiration_minutes)
+def get_expiration_date(expiration_hours):
+    return datetime.now() + timedelta(hours=expiration_hours)
 
 def delete_expired_files():
     with file_lock:
@@ -56,8 +56,8 @@ def upload_file():
         filename = generate_unique_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        expiration_minutes = int(request.form.get('expiration', app.config['DEFAULT_EXPIRATION_MINUTES']))
-        expiration_date = get_expiration_date(expiration_minutes)
+        expiration_hours = int(request.form.get('expiration', app.config['DEFAULT_EXPIRATION_HOURS']))
+        expiration_date = get_expiration_date(expiration_hours)
         file_expirations[filename] = expiration_date
         file_url = request.url_root + 'uploads/' + filename
         return jsonify({
